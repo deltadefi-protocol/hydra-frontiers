@@ -1,0 +1,9 @@
+NAME                                    CPU(cores)   MEMORY(bytes)
+alpine-b6c984f6d-z6vxc                  0m           0Mi
+cardano-node-6fcb99946-4sjx2            5m           4539Mi
+hydra-node-alice-65bd9c6c66-kv4ps       743m         2865Mi
+hydra-node-bob-555cdf74c7-f86dz         773m         2534Mi
+hydra-node-david-6bb8744645-4dgv9       274m         2513Mi
+hydra-snapshot-check-7c45f96967-wln4n   10m          1Mi
+hydra-tui-7765fbfb8f-ml4cg              13m          83Mi
+stackdrive-exporter-7db4c6cd9b-l525h    1m           9Mi
