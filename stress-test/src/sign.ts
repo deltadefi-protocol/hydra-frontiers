@@ -1,6 +1,6 @@
 import { AppWalletKeyType, MeshWallet } from "@meshsdk/core";
 import { writeFileSync } from "fs";
-import rawTxs from "./raw-txs.json";
+import rawTxs from "./raw-txs-2.json";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -24,7 +24,7 @@ async function main() {
     signedTxs.push(signedTx);
   }
 
-  writeFileSync("src/txs.json", JSON.stringify(signedTxs, null, 2));
+  writeFileSync("src/txs-2.json", JSON.stringify(signedTxs, null, 2));
   console.log(`Done. Signed ${signedTxs.length} transactions → src/txs.json`);
 }
 

@@ -14,7 +14,7 @@ services:
         "--offline-head-seed",
         "0001",
         "--initial-utxo",
-        "/config/utxo.json",
+        "/config/utxo-2.json",
         "--hydra-signing-key",
         "/config/alice-hydra.sk",
         "--ledger-protocol-parameters",

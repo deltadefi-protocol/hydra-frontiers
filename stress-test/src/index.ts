@@ -1,6 +1,6 @@
 import { calculateTxHash } from "@meshsdk/core-csl";
 import { writeFileSync } from "fs";
-import txs from "./txs.json";
+import txs from "./txs-2.json";
 
 interface TxResult {
   order: number;
@@ -11,7 +11,7 @@ interface TxResult {
 }
 
 const HYDRA_API_URL = "http://127.0.0.1:4009/transaction";
-const REQUEST_PER_SECOND = 50;
+const REQUEST_PER_SECOND = 100;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
