@@ -67,3 +67,8 @@ Results are saved to `./result/batch-{REQUEST_PER_SECOND}.json` with the followi
   }
 ]
 ```
+
+Also can check `docker stats` -> showing the memory [memory-bloat](../memory-bloat/) issue as well:
+
+It eats up 1GB memory by only submitting 140 txs
+![image](./image.png)
