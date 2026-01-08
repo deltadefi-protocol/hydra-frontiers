@@ -15,13 +15,23 @@ const REQUEST_PER_SECOND = 100;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+
+function buildTx (signedTx: string) {
+  const tx = {
+      type: "Witnessed Tx ConwayEra",
+      description: "Ledger Cddl Format",
+      cborHex: signedTx,
+  };
+  return tx;
+}
+
 async function submitTx(
   signedTx: string,
   order: number,
   batchNum: number
 ): Promise<TxResult> {
+  const tx = buildTx(signedTx);
   const txHash = calculateTxHash(signedTx);
-
   const start = performance.now();
 
   const response = await fetch(HYDRA_API_URL, {
@@ -29,11 +39,7 @@ async function submitTx(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      type: "Witnessed Tx ConwayEra",
-      description: "Ledger Cddl Format",
-      cborHex: signedTx,
-    }),
+    body: JSON.stringify(tx),
   });
   const elapsedMs = parseFloat((performance.now() - start).toFixed(2));
 
@@ -75,4 +81,57 @@ async function main() {
   );
 }
 
-main().catch(console.error);
+
+async function mainWsSync () {
+  const uri = "ws://127.0.0.1:4009/?history=no";
+  const socket = new WebSocket(uri);
+
+  var i = 0;
+  var start: number = 0;
+  const results: TxResult[] = [];
+
+  const buildNewTx = (i: number) => {
+    const tx = buildTx(txs[i]);
+
+    const newTx = JSON.stringify({
+        tag: "NewTx",
+        transaction: tx,
+    });
+
+    return newTx;
+  };
+
+  socket.addEventListener("message", (e) => {
+    const d = JSON.parse(e.data);
+    if( d.tag == "SnapshotConfirmed" ) {
+      const elapsedMs = parseFloat((performance.now() - start).toFixed(2));
+      results.push({ order: i, batchNum: 0, txHash: "000...", status: 200, elapsedMs });
+
+      i++;
+
+      start = performance.now();
+
+      if (i == txs.length - 1) {
+        console.log("Done!");
+        writeFileSync(
+          "./result/batch-ws.json",
+          JSON.stringify(results, null, 2)
+        );
+      } else {
+        if ( i % 50 == 0 ){
+          console.log(`Sending tx ${i}`);
+        }
+        socket.send(buildNewTx(i));
+      }
+    }
+  });
+
+
+  socket.addEventListener("open", () => {
+    start = performance.now();
+    socket.send(buildNewTx(i % txs.length));
+  });
+}
+
+mainWsSync().catch(console.error);
+// main().catch(console.error);
