@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "check": "ts-node src/index.ts"
+    "tx-in": "ts-node src/tx-in.ts",
+    "tx-out-with": "ts-node src/tx-out-with.ts"
   },
   "keywords": [],
   "author": "",
