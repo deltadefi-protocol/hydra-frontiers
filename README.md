@@ -13,6 +13,14 @@ This is grouped by issues that affect seriously
    - Details: [stress-test](./stress-test/README.md)
    - Acceptance criteria: 1k TPS
 
+2. Snapshot confirm instability
+
+   - Rationale: At ~10 TPS, snapshots fail to confirm. The Head becomes unresponsive as transactions accumulate but no new snapshots are finalized, affecting fund safety and result in stale head.
+   - Root cause: Hydra's single sequential event queue causes consensus (snapshot confirmation) and transaction ingestion to block each other.
+   - It happens in high load situation (like in [stress-test](./stress-test/)).
+   - Details: [snapshot-confirm-instability](./snapshot-confirm-instability/README.md)
+   - Acceptance criteria: Snapshots confirm within 500ms at 10+ TPS
+
 ## CRITICAL
 
 1. Make [1.3.0](https://github.com/cardano-scaling/hydra/blob/master/CHANGELOG.md) changes optional
@@ -28,14 +36,6 @@ This is grouped by issues that affect seriously
    - This is non-blocking since we can simply scale machine at start, but this is not sustainable if DeltaDeFi grows traction.
    - Details: [memory-bloat](./memory-bloat/issue-summary.md)
    - Acceptance criteria: can support
-
-3. Fail to confirm snapshot
-
-   - Rationale: It affect fund safety and result in stale head.
-   - It happens in high load situation (like in [stress-test](./stress-test/)).
-   - This is non-blocking since we have 2 mitigations:
-     - Using sideload snapshot to recover. But from past exprience, side load
-     - now temporarily forking from 1.2.0 to apply fix on this.
 
 ## IMPORTANT
 
