@@ -4,10 +4,10 @@
 
 **Two coupled problems:**
 
-| Problem | Description |
-|---------|-------------|
-| **No backpressure** | Accepts txs faster than confirmable → unbounded queue growth |
-| **Coupled processing** | Consensus (ReqSn/AckSn) blocked behind tx queue → starvation |
+| Problem                | Description                                                  | Current Issue                                               |
+| ---------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| **No backpressure**    | Accepts txs faster than confirmable → unbounded queue growth | [#2430](https://github.com/cardano-scaling/hydra/pull/2430) |
+| **Coupled processing** | Consensus (ReqSn/AckSn) blocked behind tx queue → starvation |                                                             |
 
 ```
 Load > Capacity → Queue explodes → Consensus starves → COMPLETE STALL
@@ -20,11 +20,11 @@ This happens at ANY capacity:
 
 ## Key Code Locations
 
-| File | Issue |
-|------|-------|
+| File                                      | Issue                             |
+| ----------------------------------------- | --------------------------------- |
 | `hydra-node/src/Hydra/Node/InputQueue.hs` | Unbounded TQueue, no backpressure |
-| `hydra-node/src/Hydra/Node.hs:294` | Single sequential loop |
-| `hydra-node/src/Hydra/HeadLogic.hs:484` | WaitOnTxs stall |
+| `hydra-node/src/Hydra/Node.hs:294`        | Single sequential loop            |
+| `hydra-node/src/Hydra/HeadLogic.hs:484`   | WaitOnTxs stall                   |
 
 ## Solution: Two Parts
 
@@ -50,11 +50,11 @@ Fixed:    [NewTx] → [Tx Queue] ──► [Mempool TVar] ◄── [Consensus Q
 
 ## Expected Behavior After Fix
 
-| Scenario | Before | After |
-|----------|--------|-------|
-| Load < Capacity | Works | Works |
-| Load > Capacity | **Complete stall** | Rejects excess, continues working |
-| Recovery | Manual intervention | Automatic when load drops |
+| Scenario        | Before              | After                             |
+| --------------- | ------------------- | --------------------------------- |
+| Load < Capacity | Works               | Works                             |
+| Load > Capacity | **Complete stall**  | Rejects excess, continues working |
+| Recovery        | Manual intervention | Automatic when load drops         |
 
 ## Evidence Collection
 
