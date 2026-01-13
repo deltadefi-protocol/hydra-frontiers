@@ -1,4 +1,4 @@
-import { calculateTxHash } from "@meshsdk/core-csl";
+import { calculateTxHash, csl } from "@meshsdk/core-csl";
 import { writeFileSync } from "fs";
 import txs from "./txs-2.json";
 
@@ -15,12 +15,22 @@ const REQUEST_PER_SECOND = 100;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const prevTxs: Record<string, number> = {};
+
+export const getTxIns = (txHex: string): string[] => {
+  const cslTx = csl.FixedTransaction.from_hex(txHex);
+  const txBody = cslTx.body();
+  const cslInputs: any[] = JSON.parse(txBody.inputs().to_json());
+  return cslInputs.map((i) => `${i.transaction_id}`);
+};
+
 async function submitTx(
   signedTx: string,
   order: number,
   batchNum: number
 ): Promise<TxResult> {
   const txHash = calculateTxHash(signedTx);
+  const txIns = getTxIns(signedTx);
 
   const start = performance.now();
 
@@ -40,6 +50,25 @@ async function submitTx(
   console.log(
     `[${order}] Submitted tx: ${txHash} - Status: ${response.status} - ${elapsedMs}ms`
   );
+
+  if (response.status !== 202) {
+    const errorText = await response.text();
+    console.error(
+      `    - Error submitting tx: ${txHash} - Status: ${response.status} - ${errorText}`
+    );
+  }
+
+  txIns.forEach((txIn) => {
+    if (prevTxs[txIn] || prevTxs[txIn] === 0) {
+      console.log(
+        `    - Warning: TxIn ${txIn} is produced tx #${prevTxs[txIn]}`
+      );
+    }
+  });
+
+  txIns.forEach((txIn) => {
+    prevTxs[txIn] = order;
+  });
 
   return { order, batchNum, txHash, status: response.status, elapsedMs };
 }

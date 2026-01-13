@@ -21,13 +21,6 @@ This is grouped by issues that affect seriously
    - Details: [snapshot-confirm-instability](./snapshot-confirm-instability/README.md)
    - Acceptance criteria: Snapshots confirm at 20+ TPS
 
-3. Make [1.3.0](https://github.com/cardano-scaling/hydra/blob/master/CHANGELOG.md) changes optional
-
-   - Working PR [#2432](https://github.com/cardano-scaling/hydra/pull/2432)
-   - Rationale: This change introduces random downtime for duration of a few seconds, which severely affect trading reliability.
-   - The security concern is legit, but not applicable to our case. In DeltaDeFi usage we disgard the contestant period logics since the trust assumption we apply is reputation based. So the fix is irrelevant but introduce UX overhaul in our case.
-   - This is blocking since we can not updating hydra node and stay at version 1.2.0, and above issues cannot be resolved.
-
 ## CRITICAL
 
 1. Memory bloat
@@ -84,3 +77,12 @@ This is grouped by issues that affect seriously
    ```
 
    - Acceptance criteria: confirmation of sideload snapshot will work in normal circumstances. Ideally with a table showing what scenario would fail.
+
+## Resolved
+
+1. Make [1.3.0](https://github.com/cardano-scaling/hydra/blob/master/CHANGELOG.md) changes optional
+
+   - Resolved by PR [#2432](https://github.com/cardano-scaling/hydra/pull/2432)
+   - Rationale: This change introduces random downtime for duration of a few seconds, which severely affect trading reliability.
+   - The security concern is legit, but not applicable to our case. In DeltaDeFi usage we disgard the contestant period logics since the trust assumption we apply is reputation based. So the fix is irrelevant but introduce UX overhaul in our case.
+   - This is blocking since we can not updating hydra node and stay at version 1.2.0, and above issues cannot be resolved.
