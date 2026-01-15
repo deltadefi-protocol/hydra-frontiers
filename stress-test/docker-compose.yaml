@@ -1,6 +1,7 @@
 services:
   hydra-node-1:
-    image: ghcr.io/cardano-scaling/hydra-node:1.2.0
+    image: ghcr.io/deltadefi-protocol/hydra-node:1.2.1
+    # image: ghcr.io/cardano-scaling/hydra-node:1.2.0
     volumes:
       - ./config:/config
     ports:

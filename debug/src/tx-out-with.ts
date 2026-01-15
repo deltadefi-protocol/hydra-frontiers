@@ -1,8 +1,3 @@
-import {
-  js_get_tx_outs_utxo,
-  js_parse_tx_body,
-  JsVecString,
-} from "@sidan-lab/whisky-js-nodejs";
 import txs from "./txs.json";
 import { UTxO } from "@meshsdk/core";
 import { getTxIns, getTxOuts } from "./utils";
