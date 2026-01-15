@@ -21,6 +21,19 @@ This is grouped by issues that affect seriously
    - Details: [snapshot-confirm-instability](./snapshot-confirm-instability/README.md)
    - Acceptance criteria: Snapshots confirm at 20+ TPS
 
+## CRITICAL
+
+1. Incremental commit instability
+
+   - For now we use deposit period of 300s (5 minutes), however, there is more often than not the deposit event is not processed appropriately within deposit window deadline.
+   - This is non-blocking as we can keep retrying with recovery
+   - We see below logs from hydra-node then it ends there without processing:
+
+     ```sh
+     2026-01-15 15:51:13.428001951 UTC | Commit deposit recorded with  deposit tx id "374e9038bc283246504b4e1d88a3ca8b8c0a5dc345d402ec0869e9dc1c4f1412"and                                                                          |[R]ecover
+     pending for approval 746bf15427#0 ↦ 5000001 lovelace + 1 8516d6c94f15a040537b3f8ac5be09123fe01e02d60dcc8dd1276628
+     ```
+
 ## IMPORTANT
 
 1. Error message inconsistency
