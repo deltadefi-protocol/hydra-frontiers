@@ -25,6 +25,7 @@ This is grouped by issues that affect seriously
 
 1. Incremental commit instability
 
+   - Active issue [#2446](https://github.com/cardano-scaling/hydra/issues/2446)
    - For now we use deposit period of 300s (5 minutes), however, there is more often than not the deposit event is not processed appropriately within deposit window deadline.
    - This is non-blocking as we can keep retrying with recovery
    - We see below logs from hydra-node then it ends there without processing:
