@@ -21,19 +21,12 @@ This is grouped by issues that affect seriously
    - Details: [snapshot-confirm-instability](./snapshot-confirm-instability/README.md)
    - Acceptance criteria: Snapshots confirm at 20+ TPS
 
-## CRITICAL
-
-1. Memory bloat
-
-   - Rationale: When UTXOs set grows, we observed a higher than linear space complexity, resulting in unpractical machine cose.
-   - This is non-blocking since we can simply scale machine at start, but this is not sustainable if DeltaDeFi grows traction.
-   - Details: [memory-bloat](./memory-bloat/issue-summary.md)
-
 ## IMPORTANT
 
 1. Error message inconsistency
 
    - There are occasions where hydra transaction submit returns error which the transaction being accepted by the snapshot eventually. It would lead to inconsistent of state mapping in database.
+   - Related PR - adding `tx-ttl` to fix false `BadInputUtxo` error from timeout tx submit request [#2434](https://github.com/cardano-scaling/hydra/pull/2434)
 
 2. Sideload snapshot instability
 
@@ -86,3 +79,10 @@ This is grouped by issues that affect seriously
    - Rationale: This change introduces random downtime for duration of a few seconds, which severely affect trading reliability.
    - The security concern is legit, but not applicable to our case. In DeltaDeFi usage we disgard the contestant period logics since the trust assumption we apply is reputation based. So the fix is irrelevant but introduce UX overhaul in our case.
    - This is blocking since we can not updating hydra node and stay at version 1.2.0, and above issues cannot be resolved.
+
+2. Memory bloat
+
+   - Resolved by [StrictData](https://github.com/cardano-scaling/hydra/tree/a5214afa6ea54c9088b4377a5830f266f92aeb7a)
+   - Rationale: When UTXOs set grows, we observed a higher than linear space complexity, resulting in unpractical machine cose.
+   - This is non-blocking since we can simply scale machine at start, but this is not sustainable if DeltaDeFi grows traction.
+   - Details: [memory-bloat](./memory-bloat/issue-summary.md)
