@@ -27,7 +27,7 @@ export const getTxIns = (txHex: string): string[] => {
 async function submitTx(
   signedTx: string,
   order: number,
-  batchNum: number
+  batchNum: number,
 ): Promise<TxResult> {
   const txHash = calculateTxHash(signedTx);
   const txIns = getTxIns(signedTx);
@@ -48,27 +48,25 @@ async function submitTx(
   const elapsedMs = parseFloat((performance.now() - start).toFixed(2));
 
   console.log(
-    `[${order}] Submitted tx: ${txHash} - Status: ${response.status} - ${elapsedMs}ms`
+    `[${order}] Submitted tx: ${txHash} - Status: ${response.status} - ${elapsedMs}ms`,
   );
 
   if (response.status !== 202) {
     const errorText = await response.text();
     console.error(
-      `    - Error submitting tx: ${txHash} - Status: ${response.status} - ${errorText}`
+      `    - Error submitting tx: ${txHash} - Status: ${response.status} - ${errorText}`,
     );
   }
 
   txIns.forEach((txIn) => {
     if (prevTxs[txIn] || prevTxs[txIn] === 0) {
       console.log(
-        `    - Warning: TxIn ${txIn} is produced tx #${prevTxs[txIn]}`
+        `    - Warning: TxIn ${txIn} is produced in tx #${prevTxs[txIn]}`,
       );
     }
   });
 
-  txIns.forEach((txIn) => {
-    prevTxs[txIn] = order;
-  });
+  prevTxs[txHash] = order;
 
   return { order, batchNum, txHash, status: response.status, elapsedMs };
 }
@@ -82,11 +80,11 @@ async function main() {
     const batch = txs.slice(i, i + REQUEST_PER_SECOND);
 
     console.log(
-      `\nBatch ${batchNum}/${totalBatches} - Submitting ${batch.length} txs...`
+      `\nBatch ${batchNum}/${totalBatches} - Submitting ${batch.length} txs...`,
     );
 
     const batchResults = await Promise.all(
-      batch.map((txHex, idx) => submitTx(txHex, i + idx, batchNum))
+      batch.map((txHex, idx) => submitTx(txHex, i + idx, batchNum)),
     );
     results.push(...batchResults);
 
@@ -97,10 +95,10 @@ async function main() {
 
   writeFileSync(
     `./result/batch-${REQUEST_PER_SECOND}.json`,
-    JSON.stringify(results, null, 2)
+    JSON.stringify(results, null, 2),
   );
   console.log(
-    `\nDone. Submitted ${txs.length} transactions. Results saved to elapsed.json`
+    `\nDone. Submitted ${txs.length} transactions. Results saved to elapsed.json`,
   );
 }
 
