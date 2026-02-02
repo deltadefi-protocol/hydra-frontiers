@@ -26,7 +26,7 @@ This happens at ANY capacity:
 | `hydra-node/src/Hydra/Node.hs:294`        | Single sequential loop            |
 | `hydra-node/src/Hydra/HeadLogic.hs:484`   | WaitOnTxs stall                   |
 
-## Solution: Two Parts
+## Ideation / Solution: Two Parts
 
 ### Part 1: Backpressure (Prevent Overload)
 
