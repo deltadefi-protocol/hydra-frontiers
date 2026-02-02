@@ -1,102 +1,53 @@
-# Summary of Issues
+# DeltaDeFi Hydra Issues
 
-This readme serves a summary of issues that DeltaDeFi is facing surrounding Hydra. Current issues are all produced by stress-testing hydra node. So can be summarized as derived issues from scalability.
+## Foreword
 
-## BLOCKING
+This repository documents DeltaDeFi's experience integrating and operating [Hydra](https://hydra.family/) - the Layer 2 scaling solution for Cardano.
 
-This is grouped by issues that affect seriously
+We extend our appreciation to the [Hydra team at IOG/Cardano Scaling](https://github.com/cardano-scaling/hydra) for their groundbreaking work on this technology. The issues documented here arise from stress-testing Hydra under production-like conditions for our DEX use case, and we hope this documentation contributes back to the ecosystem.
 
-1. TPS
+**Purpose**: Document issues, investigations, and fixes related to Hydra usage in DeltaDeFi's trading infrastructure.
 
-   - Rationale: We will be running multiple pairs on same hydra machine. Currently limitation can roughly support 1 order per second on each pair (assume we have 5 pairs).
-   - Hydra core seems to process transaction one by one which can only serves up to 10TPS. Ideally it can serve up to 1k mark.
-   - Details: [stress-test](./stress-test/README.md)
-   - Acceptance criteria: 1k TPS
+## Layout
 
-2. Snapshot confirm instability
+```
+hydra-issues/
+├── README.md                 # This file - overview and top issues
+├── issues/                   # Detailed issue documentation
+│   ├── incremental/          # IC/ID stale snapshot issues
+│   ├── stress-test/          # TPS and load testing
+│   ├── snapshot-confirm-instability/  # Snapshot confirmation issues
+│   ├── error-message-inconsistency/   # False error responses
+│   ├── sideload-instability/          # Sideload recovery issues
+│   └── memory-bloat/         # Memory usage issues (resolved)
+├── knowledge-base/           # Research and documentation
+└── debug/                    # Debug scripts and tools
+```
 
-   - Rationale: At ~10 TPS, snapshots fail to confirm. The Head becomes unresponsive as transactions accumulate but no new snapshots are finalized, affecting fund safety and result in stale head.
-   - Root cause: Hydra's single sequential event queue causes consensus (snapshot confirmation) and transaction ingestion to block each other.
-   - It happens in high load situation (like in [stress-test](./stress-test/)).
-   - Details: [snapshot-confirm-instability](./snapshot-confirm-instability/README.md)
-   - Acceptance criteria: Snapshots confirm at 20+ TPS
+## Top Issues
 
-## CRITICAL
+### BLOCKING
 
-1. Incremental commit instability
+| Issue | Description | Details | Upstream |
+|-------|-------------|---------|----------|
+| TPS Limitation | Hydra processes transactions sequentially, limiting throughput to ~10 TPS. Need 1k TPS for multi-pair trading. | [stress-test](./issues/stress-test/README.md) | - |
+| Snapshot Confirm Instability | At ~10 TPS, snapshots fail to confirm. Head becomes unresponsive due to single sequential event queue blocking consensus. | [snapshot-confirm-instability](./issues/snapshot-confirm-instability/README.md) | - |
+| Incremental Commit/Decommit Instability | IC/ID operations become stale after L1 finalization due to version race conditions. Recovery via sideload possible but not ideal. | [incremental](./issues/incremental/README.md) | [#2446](https://github.com/cardano-scaling/hydra/issues/2446) |
 
-   - Active issue [#2446](https://github.com/cardano-scaling/hydra/issues/2446)
-   - For now we use deposit period of 300s (5 minutes), however, there is more often than not the deposit event is not processed appropriately within deposit window deadline.
-   - This is non-blocking as we can keep retrying with recovery
-   - We see below logs from hydra-node then it ends there without processing:
+### IMPORTANT
 
-     ```sh
-     2026-01-15 15:51:13.428001951 UTC | Commit deposit recorded with  deposit tx id "374e9038bc283246504b4e1d88a3ca8b8c0a5dc345d402ec0869e9dc1c4f1412"and                                                                          |[R]ecover
-     pending for approval 746bf15427#0 ↦ 5000001 lovelace + 1 8516d6c94f15a040537b3f8ac5be09123fe01e02d60dcc8dd1276628
-     ```
+| Issue | Description | Details | Related |
+|-------|-------------|---------|---------|
+| Error Message Inconsistency | Tx submit returns error but transaction accepted by snapshot, causing state mismatch. | [error-message-inconsistency](./issues/error-message-inconsistency/README.md) | [#2434](https://github.com/cardano-scaling/hydra/pull/2434) |
+| Sideload Instability | Sideload snapshot timeout during recovery. Edge case only. | [sideload-instability](./issues/sideload-instability/README.md) | - |
 
-## IMPORTANT
+### RESOLVED
 
-1. Error message inconsistency
+| Issue | Resolution | Details |
+|-------|------------|---------|
+| Make 1.3.0 changes optional | [#2432](https://github.com/cardano-scaling/hydra/pull/2432) | Random downtime from security fix not applicable to our trust model |
+| Memory Bloat | [StrictData](https://github.com/cardano-scaling/hydra/tree/a5214afa6ea54c9088b4377a5830f266f92aeb7a) | Higher than linear space complexity with UTXO growth |
 
-   - There are occasions where hydra transaction submit returns error which the transaction being accepted by the snapshot eventually. It would lead to inconsistent of state mapping in database.
-   - Related PR - adding `tx-ttl` to fix false `BadInputUtxo` error from timeout tx submit request [#2434](https://github.com/cardano-scaling/hydra/pull/2434)
+## Contributing
 
-2. Sideload snapshot instability
-
-   - From time to time, we see sideload snapshot timeout:
-
-   ```json
-   {
-     "tag": "SideLoadSnapshotSubmitted",
-     "timeout": "Operation timed out after 300s seconds"
-   }
-   ```
-
-   - This is not critical since we only experience it at edge usage (recovering old snapshot), investigating inside we see:
-
-   ```json
-   {
-     "timestamp": "2026-01-05T07:28:17.153461661Z",
-     "threadId": 93,
-     "namespace": "HydraNode-\"alice-node\"",
-     "message": {
-       "node": {
-         "by": {
-           "vkey": "9d0ef705011396676ae1ed5f49924613d27d00c8d60eae28d3f9afeb7d2a6a39"
-         },
-         "outcome": {
-           "error": {
-             "sideLoadRequirementFailure": {
-               "lastSeenSn": 760,
-               "requestedSn": 7,
-               "tag": "SideLoadSnNumberInvalid"
-             },
-             "tag": "SideLoadSnapshotFailed"
-           },
-           "tag": "Error"
-         },
-         "tag": "LogicOutcome"
-       },
-       "tag": "Node"
-     }
-   }
-   ```
-
-   - Acceptance criteria: confirmation of sideload snapshot will work in normal circumstances. Ideally with a table showing what scenario would fail.
-
-## Resolved
-
-1. Make [1.3.0](https://github.com/cardano-scaling/hydra/blob/master/CHANGELOG.md) changes optional
-
-   - Resolved by PR [#2432](https://github.com/cardano-scaling/hydra/pull/2432)
-   - Rationale: This change introduces random downtime for duration of a few seconds, which severely affect trading reliability.
-   - The security concern is legit, but not applicable to our case. In DeltaDeFi usage we disgard the contestant period logics since the trust assumption we apply is reputation based. So the fix is irrelevant but introduce UX overhaul in our case.
-   - This is blocking since we can not updating hydra node and stay at version 1.2.0, and above issues cannot be resolved.
-
-2. Memory bloat
-
-   - Resolved by [StrictData](https://github.com/cardano-scaling/hydra/tree/a5214afa6ea54c9088b4377a5830f266f92aeb7a)
-   - Rationale: When UTXOs set grows, we observed a higher than linear space complexity, resulting in unpractical machine cose.
-   - This is non-blocking since we can simply scale machine at start, but this is not sustainable if DeltaDeFi grows traction.
-   - Details: [memory-bloat](./memory-bloat/issue-summary.md)
+Issues and fixes are tracked in the [DeltaDeFi Hydra Fork](https://github.com/deltadefi-protocol/hydra).
