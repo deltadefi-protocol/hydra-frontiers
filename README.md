@@ -1,4 +1,4 @@
-# DeltaDeFi Hydra Issues
+# DeltaDeFi Hydra Frontiers
 
 ## Foreword
 
@@ -28,25 +28,25 @@ hydra-issues/
 
 ### BLOCKING
 
-| Issue | Description | Details | Upstream |
-|-------|-------------|---------|----------|
-| TPS Limitation | Hydra processes transactions sequentially, limiting throughput to ~10 TPS. Need 1k TPS for multi-pair trading. | [stress-test](./issues/stress-test/README.md) | - |
-| Snapshot Confirm Instability | At ~10 TPS, snapshots fail to confirm. Head becomes unresponsive due to single sequential event queue blocking consensus. | [snapshot-confirm-instability](./issues/snapshot-confirm-instability/README.md) | - |
-| Incremental Commit/Decommit Instability | IC/ID operations become stale after L1 finalization due to version race conditions. Recovery via sideload possible but not ideal. | [incremental](./issues/incremental/README.md) | [#2446](https://github.com/cardano-scaling/hydra/issues/2446) |
+| Issue                                   | Description                                                                                                                       | Details                                                                         | Upstream                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| TPS Limitation                          | Hydra processes transactions sequentially, limiting throughput to ~10 TPS. Need 1k TPS for multi-pair trading.                    | [stress-test](./issues/stress-test/README.md)                                   | -                                                             |
+| Snapshot Confirm Instability            | At ~10 TPS, snapshots fail to confirm. Head becomes unresponsive due to single sequential event queue blocking consensus.         | [snapshot-confirm-instability](./issues/snapshot-confirm-instability/README.md) | -                                                             |
+| Incremental Commit/Decommit Instability | IC/ID operations become stale after L1 finalization due to version race conditions. Recovery via sideload possible but not ideal. | [incremental](./issues/incremental/README.md)                                   | [#2446](https://github.com/cardano-scaling/hydra/issues/2446) |
 
 ### IMPORTANT
 
-| Issue | Description | Details | Related |
-|-------|-------------|---------|---------|
+| Issue                       | Description                                                                           | Details                                                                       | Related                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | Error Message Inconsistency | Tx submit returns error but transaction accepted by snapshot, causing state mismatch. | [error-message-inconsistency](./issues/error-message-inconsistency/README.md) | [#2434](https://github.com/cardano-scaling/hydra/pull/2434) |
-| Sideload Instability | Sideload snapshot timeout during recovery. Edge case only. | [sideload-instability](./issues/sideload-instability/README.md) | - |
+| Sideload Instability        | Sideload snapshot timeout during recovery. Edge case only.                            | [sideload-instability](./issues/sideload-instability/README.md)               | -                                                           |
 
 ### RESOLVED
 
-| Issue | Resolution | Details |
-|-------|------------|---------|
-| Make 1.3.0 changes optional | [#2432](https://github.com/cardano-scaling/hydra/pull/2432) | Random downtime from security fix not applicable to our trust model |
-| Memory Bloat | [StrictData](https://github.com/cardano-scaling/hydra/tree/a5214afa6ea54c9088b4377a5830f266f92aeb7a) | Higher than linear space complexity with UTXO growth |
+| Issue                       | Resolution                                                                                           | Details                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Make 1.3.0 changes optional | [#2432](https://github.com/cardano-scaling/hydra/pull/2432)                                          | Random downtime from security fix not applicable to our trust model |
+| Memory Bloat                | [StrictData](https://github.com/cardano-scaling/hydra/tree/a5214afa6ea54c9088b4377a5830f266f92aeb7a) | Higher than linear space complexity with UTXO growth                |
 
 ## Contributing
 
