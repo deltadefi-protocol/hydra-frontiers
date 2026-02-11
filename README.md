@@ -8,6 +8,10 @@ We extend our appreciation to the [Hydra team at IOG/Cardano Scaling](https://gi
 
 **Purpose**: Document issues, investigations, and fixes related to Hydra usage in DeltaDeFi's trading infrastructure.
 
+## Why Hydra
+
+Hydra is the only approach that delivers DeltaDeFi's product requirements (sub-second confirmation, zero-cost orders, API trading) without sacrificing decentralization. See [deltadefi/deltadefi.md](./deltadefi/deltadefi.md) for details.
+
 ## Layout
 
 ```
